@@ -13,7 +13,6 @@ RecyclerView.Adapter<QuestionsAdapter.ViewHolder>(){
         private val binding = ItemQuestionBinding.bind(itemView)
         fun bind(question: Question){
             binding.tvQuestion.text = question.question
-            //binding.tvQuestion.setTextR
         }
     }
 
