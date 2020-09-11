@@ -3,9 +3,13 @@ package com.example.madlevel2task2
 import android.graphics.Canvas
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.View
 import androidx.recyclerview.widget.*
 import com.example.madlevel2task2.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         initViews()
     }
 
@@ -45,7 +50,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
-        val callbackLeft = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+        val callback = object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -60,28 +67,26 @@ class MainActivity : AppCompatActivity() {
                 questionsAdapter.notifyDataSetChanged()
             }
 
-        }
-
-        val callbackRight = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            override fun onChildDraw(
+                c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
+            ) {
+                super.onChildDraw(
+                    c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive
+                )
+                var direction = false;
+                direction = dX <= 0
                 val position = viewHolder.adapterPosition
-                questions.removeAt(position)
-                questionsAdapter.notifyDataSetChanged()
+                if (questions[position].answer == direction) {
+                    Snackbar.make(rvQuestions, "Incorrect", Snackbar.LENGTH_SHORT).show()
+                } else {
+                    Snackbar.make(rvQuestions, "Correct", Snackbar.LENGTH_SHORT).show()
+                }
             }
-
         }
 
-        // returns the outcome of the question
 
-
-        return ItemTouchHelper(callbackLeft)
+        // returns the outcome of the question left is incorrect right is correct
+        return ItemTouchHelper(callback)
     }
 }
